@@ -123,6 +123,21 @@ class SDCardDupe(object):
 
         return html_string
 
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def refreshPartTable(self):
+
+        list_partitions = []
+
+        # Refresh partition to discover all available medias
+        refresh_disk_cmd = "sudo /sbin/partprobe -s"
+        cmd_output = subprocess.check_output(refresh_disk_cmd, shell=True)
+
+        for device in str(cmd_output.decode("utf-8")).split("\n"):
+                list_partitions.append({'device': device})
+
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return json.dumps(list_partitions)
 
 
     @cherrypy.expose
@@ -161,10 +176,6 @@ class SDCardDupe(object):
     def getDevices(self):
 
         list_devices = []
-
-        # Refresh partition to discover all available medias
-        refresh_disk_cmd = "sudo /sbin/partprobe"
-        subprocess.check_output(refresh_disk_cmd, shell=True)
 
         # command to get a list of devices on OS
         get_disk_cmd = "lsblk -d | awk -F: '{print $1}' | awk '{print $1}'"
