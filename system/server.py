@@ -13,6 +13,18 @@ def getConfig():
     config.read(os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
     return config
 
+def buildWebPage(source):
+    www_path = "/".join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1]) + "/www/"
+    html_string = open(www_path + 'header.inc', 'r').read()
+    html_string += open(www_path + source, 'r').read()
+    html_string += open(www_path + 'footer.inc', 'r').read()
+
+    hostname_port = config['DuplicatorSettings']['Host'] + ":"+config['DuplicatorSettings']['SocketPort']
+    html_string = html_string.replace("replacewithhostnamehere",hostname_port)
+
+    css_string = '<style>' + open(config['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
+    html_string = html_string.replace("<style></style>",css_string)
+    return html_string
 
 class SDCardDupe(object):
 
@@ -20,34 +32,14 @@ class SDCardDupe(object):
     def index(self):
 
         config = getConfig()
-
-        # Get webpage, then replace needed parts here
-        www_path = "/".join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1]) + "/www/"
-        html_string = open(www_path + 'index.html', 'r').read()
-        hostname_port = config['DuplicatorSettings']['Host'] + ":"+config['DuplicatorSettings']['SocketPort']
-        html_string = html_string.replace("replacewithhostnamehere",hostname_port)
-
-        css_string = '<style>' + open(config['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
-        html_string = html_string.replace("<style></style>",css_string)
-
-        return html_string
+        return buildWebPage('index.html')
 
 
     @cherrypy.expose
     def monitor(self):
 
         config = getConfig()
-
-        # Get webpage, then replace needed parts here
-        www_path = "/".join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1]) + "/www/"
-        html_string = open(www_path + 'monitor.html', 'r').read()
-        hostname_port = config['DuplicatorSettings']['Host'] + ":"+config['DuplicatorSettings']['SocketPort']
-        html_string = html_string.replace("replacewithhostnamehere",hostname_port)
-
-        css_string = '<style>' + open(config['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
-        html_string = html_string.replace("<style></style>",css_string)
-
-        return html_string
+        return buildWebPage('monitor.html')
 
     @cherrypy.expose
     def posted(self,img_file,devices):
