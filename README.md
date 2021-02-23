@@ -1,6 +1,12 @@
 # Open Source Image Duplicator - Python3
 
 OSID offers a UI (in the form of a webpage) wrapper to dcfldd to assist in duplicating SD cards from a Raspberry Pi.
+Originally written in PHP by [Rock & Scissor Enterprises
+Limited](https://www.rockandscissor.com/), rewritten in Python by [Aaron
+Nguyen](https://github.com/aaronnguyen/osid-python3), slightly fine-tuned by
+[Jörn Nettingsmeier](https://github.com/nettings/osid-python3).
+
+Licensed under the GNU GPL v3. 
 
 
 ## Getting Started
@@ -10,11 +16,24 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Hardware
 
-- Raspberry Pi 2
+- Raspberry Pi 2 or better
 - 32 GB SD Card
 - Official Raspberry Pi Touch Display
 - Monoprice powered USB hubs (7 ports) (4 total)
 - Monoprice SD card readers (26 total, rpi2 will stall on any more)
+
+#### USB3 limitation
+
+If you are considering building a fast USB3 duplicator using the latest
+Raspberry Pi 4B, keep in mind that there is a hard limit of 32 devices on
+any one USB controller, and that both USB3 ports on the Pi run on the same
+controller.
+In my case, I was trying to combine two [IcyBox 13-port USB3
+hubs](https://icybox.de/en/product.php?id=104), only to find that the system
+would recognize at most 17 out of 26 card readers, more or less randomly.
+This is due to the fact that the hub consists of several sub-hubs
+internally. In the end, I built two Pis with one 13-port hub each, which
+works fine.
 
 ### Prerequisites
 
