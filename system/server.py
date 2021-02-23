@@ -7,25 +7,27 @@ import configparser
 import cherrypy
 
 
-# Todo: too many config_parse blocks, create a function to easily call it
+def getConfig():
+    config = configparser.ConfigParser()
+    config.sections()
+    config.read(os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
+    return config
+
 
 class SDCardDupe(object):
+
     @cherrypy.expose
     def index(self):
 
-        # get host configs from server.ini
-        config_parse = configparser.ConfigParser()
-        config_parse.sections()
-        config_parse.read( os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
-
+        config = getConfig()
 
         # Get webpage, then replace needed parts here
         www_path = "/".join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1]) + "/www/"
         html_string = open(www_path + 'index.html', 'r').read()
-        hostname_port = config_parse['DuplicatorSettings']['Host']+":"+config_parse['DuplicatorSettings']['SocketPort']
+        hostname_port = config['DuplicatorSettings']['Host'] + ":"+config['DuplicatorSettings']['SocketPort']
         html_string = html_string.replace("replacewithhostnamehere",hostname_port)
 
-        css_string = '<style>' + open(config_parse['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
+        css_string = '<style>' + open(config['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
         html_string = html_string.replace("<style></style>",css_string)
 
         return html_string
@@ -34,18 +36,15 @@ class SDCardDupe(object):
     @cherrypy.expose
     def monitor(self):
 
-        # get host configs from server.ini
-        config_parse = configparser.ConfigParser()
-        config_parse.sections()
-        config_parse.read( os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
+        config = getConfig()
 
         # Get webpage, then replace needed parts here
         www_path = "/".join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1]) + "/www/"
         html_string = open(www_path + 'monitor.html', 'r').read()
-        hostname_port = config_parse['DuplicatorSettings']['Host']+":"+config_parse['DuplicatorSettings']['SocketPort']
+        hostname_port = config['DuplicatorSettings']['Host'] + ":"+config['DuplicatorSettings']['SocketPort']
         html_string = html_string.replace("replacewithhostnamehere",hostname_port)
 
-        css_string = '<style>' + open(config_parse['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
+        css_string = '<style>' + open(config['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
         html_string = html_string.replace("<style></style>",css_string)
 
         return html_string
@@ -82,17 +81,13 @@ class SDCardDupe(object):
             mounted_list = []
             mounted_list.extend(reduced_list)
 
+        config = getConfig()
 
-        # get host configs from server.ini
-        config_parse = configparser.ConfigParser()
-        config_parse.sections()
-        config_parse.read( os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
-
-        if not os.path.exists(config_parse['DuplicatorSettings']['Logs']):
-            os.makedirs(config_parse['DuplicatorSettings']['Logs'])
+        if not os.path.exists(config['DuplicatorSettings']['Logs']):
+            os.makedirs(config['DuplicatorSettings']['Logs'])
 
         #Save current img name to logs
-        with open(config_parse['DuplicatorSettings']['Logs'] + "/imagename.info", 'w') as out:
+        with open(config['DuplicatorSettings']['Logs'] + "/imagename.info", 'w') as out:
             out.write(os.path.basename(img_file))
         out.close()
 
@@ -100,20 +95,20 @@ class SDCardDupe(object):
         dd_cmd = "sudo dcfldd bs=4M if=" + img_file
         dd_cmd += " of=" + " of=".join(devices)
         dd_cmd += " sizeprobe=if statusinterval=4 2>&1 | sudo tee "
-        dd_cmd += config_parse['DuplicatorSettings']['Logs'] + "/progress.info"
+        dd_cmd += config['DuplicatorSettings']['Logs'] + "/progress.info"
         dd_cmd += " && echo \"osid_completed_task\" | sudo tee -a "
-        dd_cmd += config_parse['DuplicatorSettings']['Logs'] + "/progress.info"
+        dd_cmd += config['DuplicatorSettings']['Logs'] + "/progress.info"
 
         # Planned to run this in localhost only.
         # But if there are plans to put this on the network, this is a security issue
         # Just a workaround to get it running by subprocess
-        dd_cmd_file = config_parse['DuplicatorSettings']['Logs']+"/run.sh"
+        dd_cmd_file = config['DuplicatorSettings']['Logs']+"/run.sh"
         with open(dd_cmd_file,'w') as write_file:
             write_file.write(dd_cmd)
 
         subprocess.Popen(['sudo', 'bash', dd_cmd_file], close_fds=True)
 
-        hostname_port = config_parse['DuplicatorSettings']['Host']+":"+config_parse['DuplicatorSettings']['SocketPort']
+        hostname_port = config['DuplicatorSettings']['Host'] + ":" + config['DuplicatorSettings']['SocketPort']
         monitor_url = "http://" +  hostname_port + "/monitor";
 
 
@@ -143,14 +138,11 @@ class SDCardDupe(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def getStatus(self):
-        # get host configs from server.ini
-        config_parse = configparser.ConfigParser()
-        config_parse.sections()
-        config_parse.read( os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
-        progress_file = config_parse['DuplicatorSettings']['Logs'] + "/progress.info"
+        config = getConfig()
+        progress_file = config['DuplicatorSettings']['Logs'] + "/progress.info"
 
         # pull data from imagename.info for image name
-        with open(config_parse['DuplicatorSettings']['Logs'] + "/imagename.info", 'r') as out:
+        with open(config['DuplicatorSettings']['Logs'] + "/imagename.info", 'r') as out:
             imgname = out.read()
         out.close()
 
@@ -204,14 +196,11 @@ class SDCardDupe(object):
 
         list_images = []
 
-        # get the path of images from the ini file
-        config_parse = configparser.ConfigParser()
-        config_parse.sections()
-        config_parse.read( os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
+        config = getConfig()
 
         # get the list of images and check if valid img file
-        for img_file in os.listdir(config_parse['DuplicatorSettings']['ImagePath']):
-            img_fullpath = os.path.join(config_parse['DuplicatorSettings']['ImagePath'], img_file)
+        for img_file in os.listdir(config['DuplicatorSettings']['ImagePath']):
+            img_fullpath = os.path.join(config['DuplicatorSettings']['ImagePath'], img_file)
             if os.path.isfile(img_fullpath) and  os.path.splitext(img_file)[1] == '.img':
 
                 # get the size of the image
@@ -233,17 +222,13 @@ class SDCardDupe(object):
 
 if __name__ == '__main__':
 
-    # get host configs from server.ini
-    # note: is there a way to put the config into conf and pull from api functions
-    config_parse = configparser.ConfigParser()
-    config_parse.sections()
-    config_parse.read( os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
+    config = getConfig()
 
     conf = {
         'global':{
-            'server.socket_host': config_parse['DuplicatorSettings']['Host'],
-            'server.socket_port': int(config_parse['DuplicatorSettings']['SocketPort']),
-            'log.access_file' : config_parse['DuplicatorSettings']['Logs']+"/access.log",
+            'server.socket_host': config['DuplicatorSettings']['Host'],
+            'server.socket_port': int(config['DuplicatorSettings']['SocketPort']),
+            'log.access_file' : config['DuplicatorSettings']['Logs']+"/access.log",
             'log.screen': False,
             'tools.sessions.on': True
         }
