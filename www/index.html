@@ -46,8 +46,8 @@
                     <div id="images_info"></div>
                     <script>
                         var xmlhttp = new XMLHttpRequest();
-                        // URL replacewithhostnamehere will be changed based on configuration file by CherryPy Server
-                        var url = "http://" + "replacewithhostnamehere" + "/getImages";
+                        // URL %hostname% will be changed based on configuration file by CherryPy Server
+                        var url = "http://" + "%hostname%" + "/getImages";
 
                         xmlhttp.onreadystatechange = function() {
                             if (this.readyState == 4 && this.status == 200) {
@@ -83,8 +83,8 @@
                     <script>
                         var xmlhttp = new XMLHttpRequest();
 
-                        // URL replacewithhostnamehere will be changed based on configuration file by CherryPy Server
-                        var url = "http://" + "replacewithhostnamehere" + "/getDevices";
+                        // URL %hostname% will be changed based on configuration file by CherryPy Server
+                        var url = "http://" + "%hostname%" + "/getDevices";
 
                         xmlhttp.onreadystatechange = function() {
                             if (this.readyState == 4 && this.status == 200) {
@@ -121,7 +121,3 @@
 
             </div>
         </form>
-        <div class="sixteen columns">
-            <hr />
-            <h10>Released by <a href="http://www.rockandscissor.com/" target="_blank">Rock &amp; Scissor Enterprises Limited</a> and heavily modified by <a href="https://github.com/aaronnguyen" target="_blank">Aaron Nguyen</a> under the <a href="license.txt">GNU GPLv3</a>.</h10>
-        </div>

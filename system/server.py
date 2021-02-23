@@ -6,12 +6,15 @@ import configparser
 # Installed Libs
 import cherrypy
 
+OSID_VERSION = '1.2.0'
+OSID_LICENSE = 'GNU GPL v3'
 
 def getConfig():
     config = configparser.ConfigParser()
     config.sections()
     config.read(os.path.dirname(os.path.realpath(__file__)) + '/server.ini' )
     return config
+
 
 def buildWebPage(source):
     www_path = "/".join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1]) + "/www/"
@@ -20,11 +23,14 @@ def buildWebPage(source):
     html_string += open(www_path + 'footer.inc', 'r').read()
 
     hostname_port = config['DuplicatorSettings']['Host'] + ":"+config['DuplicatorSettings']['SocketPort']
-    html_string = html_string.replace("replacewithhostnamehere",hostname_port)
+    html_string = html_string.replace('%hostname%', hostname_port)
+    html_string = html_string.replace('%version%', OSID_VERSION)
+    html_string = html_string.replace('%license%', OSID_LICENSE)
 
     css_string = '<style>' + open(config['DuplicatorSettings']['SkeletonLocation'], 'r').read() + '</style>'
     html_string = html_string.replace("<style></style>",css_string)
     return html_string
+
 
 class SDCardDupe(object):
 

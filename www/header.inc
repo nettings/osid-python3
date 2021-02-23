@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 
 <head>
-    <title>rPi-Dupe</title>
+    <title>OSID %version%</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="Description" content="Raspberry Pi SD Card Duplicator">
@@ -28,7 +28,7 @@
 
     <div class="container">
         <div class="sixteen columns osid_icon">
-            <h8>Open Source Image Duplicator - Python v1.1.1</h8>
+            <h>Open Source Image Duplicator %version%</h8>
             <hr />
         </div>
         <div class="sixteen columns">
